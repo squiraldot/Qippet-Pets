@@ -14,8 +14,9 @@ class HomeWidgetPetStorage implements PetStorage {
   Future<String?> read(String key) => HomeWidget.getWidgetData<String>(key);
 
   @override
-  Future<void> write(String key, String value) =>
-      HomeWidget.saveWidgetData<String>(key, value);
+  Future<void> write(String key, String value) async {
+    await HomeWidget.saveWidgetData<String>(key, value);
+  }
 }
 
 class PetRepository {
