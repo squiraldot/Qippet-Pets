@@ -13,6 +13,16 @@ if (signingPropertiesFile.exists()) {
     signingPropertiesFile.inputStream().use(signingProperties::load)
 }
 
+// Keep the AndroidX Glance runtime on the latest stable line. The currently
+// resolved 1.3.0-alpha02 requires API 37 and AGP 9.1+, which this Flutter
+// project intentionally does not use yet.
+configurations.configureEach {
+    resolutionStrategy.force(
+        "androidx.glance:glance:1.2.0",
+        "androidx.glance:glance-appwidget:1.2.0",
+    )
+}
+
 android {
     namespace = "com.squiraldot.qippet_pets"
     compileSdk = flutter.compileSdkVersion
