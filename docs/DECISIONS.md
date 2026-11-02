@@ -49,3 +49,11 @@
 - **State resolution:** Resolve local wall-clock LocalTime values in a pure Kotlin PetStateResolver. The sleep interval includes its start and excludes its wake boundary; overnight intervals are supported, and equal or malformed times resolve to AWAKE.
 - **Artwork:** Select pre-generated drawable-nodpi resource IDs for each supported pet and state. Widget rendering uses RemoteViews.setImageViewResource, never bitmaps.
 - **Testing:** Add JVM unit tests for overnight and same-day windows, exact boundary minutes, and equal-time schedules. Run them in CI with ./gradlew testDebugUnitTest; CI bootstraps the wrapper JAR because this repository intentionally does not check in the generated binary.
+
+## 2026-11-03 — Native widget tap animations
+
+- **Decision:** Give the widget root an explicit immutable broadcast PendingIntent targeting a non-exported PetTapAnimationReceiver. Keep the widget ID in the intent so each widget instance has an independent in-flight guard.
+- **Playback:** Use goAsync() and a main-thread Handler to send one RemoteViews frame every 120 ms, then restore the schedule-derived idle/sleeping frame. The sequence is capped at 2 seconds. Repeated taps for the same widget are ignored until completion.
+- **Sleep behavior:** Resolve the same local sleep/wake schedule before playback; a sleeping pet receives no tap animation and remains on its sleeping frame.
+- **Animation data:** Discover tap animation groups from drawable resource names matching pet_<petId>_tap_<animation>_<NN>. Each group is an ordered frame-name list plus a frame delay, so adding a correctly named animation's assets automatically makes it selectable.
+- **Testing:** Cover deterministic selection, resource-name discovery, frame ordering, invalid delays, and the two-second sequence cap with JVM unit tests.

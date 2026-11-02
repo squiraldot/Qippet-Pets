@@ -18,7 +18,7 @@
 - [x] Read selectedPetId, sleepTime, and wakeTime from home_widget SharedPreferences and render the matching idle/sleeping drawable resource.
 - [x] Add pure Kotlin schedule resolver and overnight, same-day, and boundary unit tests.
 - [x] Refresh the native widget immediately after Flutter pet and schedule changes.
-- [x] Add Kotlin unit tests to the main-branch CI workflow.
+- [x] Add Kotlin unit tests to the main-branch CI workflow.\n- [x] Add immutable widget tap PendingIntents and a non-exported asynchronous animation receiver.\n- [x] Play data-discovered tap animation frames at 120 ms intervals, ignore overlapping taps, and restore the schedule-derived idle frame.\n- [x] Preserve sleeping state on taps without waking or replacing the sleeping sprite.\n- [x] Add Kotlin tests for animation selection, automatic frame discovery, ordering, and duration limits.
 
 ## Current behavior and known scope
 
