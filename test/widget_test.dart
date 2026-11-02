@@ -14,44 +14,6 @@ class FakePetStorage implements PetStorage {
   Future<void> write(String key, String value) async {
     values[key] = value;
   }
-
-  testWidgets('unsupported launcher shows manual widget setup instructions', (tester) async {
-    const channel = MethodChannel('com.squiraldot.qippet_pets/platform');
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      channel,
-      (call) async => false,
-    );
-    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, null));
-
-    await tester.pumpWidget(
-      QippetPetsApp(repository: PetRepository(FakePetStorage())),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Add to Home screen'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Add Qippet Pets manually'), findsOneWidget);
-    expect(find.text('Choose Widgets (or Add widgets).'), findsOneWidget);
-    expect(find.textContaining('drag it onto your home screen'), findsOneWidget);
-  });
-
-  testWidgets('device health screen explains Xiaomi battery and autostart setup', (tester) async {
-    await tester.pumpWidget(
-      QippetPetsApp(repository: PetRepository(FakePetStorage())),
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Settings'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Device health & routine'), findsOneWidget);
-    expect(find.text('Open Autostart settings'), findsOneWidget);
-    expect(find.text('Open battery settings'), findsOneWidget);
-    expect(find.textContaining('No restrictions'), findsOneWidget);
-    expect(find.textContaining('exact alarms'), findsOneWidget);
-  });
-
 }
 
 void main() {
@@ -104,6 +66,49 @@ void main() {
     expect(find.text('Wake time'), findsOneWidget);
     expect(find.text('22:00'), findsOneWidget);
     expect(find.text('07:00'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('unsupported launcher shows manual widget setup instructions', (tester) async {
+    const channel = MethodChannel('com.squiraldot.qippet_pets/platform');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      channel,
+      (call) async => false,
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, null),
+    );
+
+    await tester.pumpWidget(
+      QippetPetsApp(repository: PetRepository(FakePetStorage())),
+    );
+    await tester.pump();
+
+    await tester.tap(find.text('Add to Home screen'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Add Qippet Pets manually'), findsOneWidget);
+    expect(find.text('Choose Widgets (or Add widgets).'), findsOneWidget);
+    expect(find.textContaining('drag it onto your home screen'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('device health screen explains Xiaomi battery and autostart setup', (tester) async {
+    await tester.pumpWidget(
+      QippetPetsApp(repository: PetRepository(FakePetStorage())),
+    );
+    await tester.pump();
+    await tester.tap(find.text('Settings'));
+    await tester.pump();
+
+    expect(find.text('Device health & routine'), findsOneWidget);
+    expect(find.text('Open Autostart settings'), findsOneWidget);
+    expect(find.text('Open battery settings'), findsOneWidget);
+    expect(find.textContaining('No restrictions'), findsOneWidget);
+    expect(find.text('Allow exact alarms'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
   });
