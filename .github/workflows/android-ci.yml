@@ -47,14 +47,22 @@ jobs:
         run: flutter test
 
       - name: Generate Gradle wrapper JAR
-        working-directory: android
-        run: gradle wrapper --gradle-version 8.14.3
+        shell: bash
+        run: |
+          mkdir -p /tmp/gradle-wrapper-bootstrap
+          cd /tmp/gradle-wrapper-bootstrap
+          printf "rootProject.name = 'wrapper-bootstrap'\\n" > settings.gradle
+          gradle wrapper --gradle-version 8.14.3
+          cp gradle/wrapper/gradle-wrapper.jar "$GITHUB_WORKSPACE/android/gradle/wrapper/gradle-wrapper.jar"
 
       - name: Build debug APK
         run: flutter build apk --debug
 
       - name: Build release APK
         run: flutter build apk --release
+
+      - name: Name release APK
+        run: cp build/app/outputs/flutter-apk/app-release.apk qippet-pets.apk
 
       - name: Publish latest Release APK
         uses: softprops/action-gh-release@v2
@@ -65,6 +73,6 @@ jobs:
           make_latest: false
           target_commitish: main
           overwrite_files: true
-          files: build/app/outputs/flutter-apk/app-release.apk
+          files: qippet-pets.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
