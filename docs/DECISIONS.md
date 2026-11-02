@@ -19,9 +19,10 @@
 - **Widget scope:** The app button remains a clear placeholder until a native Android widget provider and launcher flow are implemented.
 - **CI asset generation:** Pillow-generated source sprites and synchronized Android copies are committed by the main-branch CI job when generated files change. Pull-request runs generate and verify them without writing to the branch.
 
+## 2026-11-03 — Kotlin and Java bytecode target alignment
 
-## 2026-11-03 — Kotlin Gradle compiler options migration
-
-- **Failure evidence:** The Android release workflow failed while compiling `android/build.gradle.kts` because Kotlin Gradle Plugin 2.2.20 treats the legacy `kotlinOptions` DSL as an error.
-- **Decision:** Use the typed `compilerOptions` DSL with `JvmTarget.fromTarget("17")` for the Android app and all Kotlin subproject compile tasks. Keep Java source/target compatibility at 17 to avoid JVM bytecode target mismatches.
-- **References:** Kotlin Gradle compiler options migration guide and Kotlin 2.2 compatibility guide.
+- **Failure evidence:** GitHub Actions run `41525730979` failed in `:home_widget:compileReleaseKotlin`: its Java compile task targeted JVM 1.8 while Kotlin compilation targeted JVM 17.
+- **Root cause:** Setting Kotlin's target for all subprojects did not change the Java compile options of Android library plugins pulled in through Flutter federated plugins.
+- **Decision:** Configure every subproject's `JavaCompile` tasks to use Java 17 source and target compatibility, and configure Kotlin compile tasks with `JvmTarget.JVM_17`. This aligns the actual bytecode targets rather than disabling Gradle's compatibility validation.
+- **Evidence:** Android Developers documents explicit Java `sourceCompatibility` and `targetCompatibility`; Kotlin documents that related Java/Kotlin tasks must have matching targets. The upstream `home_widget` Android build configuration also migrated to Java 17.
+- **References:** https://developer.android.com/build/jdks, https://kotlinlang.org/docs/gradle-configure-project.html, https://github.com/ABausG/home_widget/pull/437
