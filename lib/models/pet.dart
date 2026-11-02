@@ -81,4 +81,14 @@ class PetPreferences {
     sleepTime: '22:00',
     wakeTime: '07:00',
   );
+
+  @override
+  bool operator ==(Object other) =>
+      other is PetPreferences &&
+      other.selectedPetId == selectedPetId &&
+      other.sleepTime == sleepTime &&
+      other.wakeTime == wakeTime;
+
+  @override
+  int get hashCode => Object.hash(selectedPetId, sleepTime, wakeTime);
 }
