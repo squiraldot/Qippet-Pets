@@ -21,6 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Check Android pet drawable resources
+        run: python3 tool/sync_pet_assets.py --check
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
