@@ -28,6 +28,14 @@ class MainActivity : FlutterActivity() {
                     PetAlarmScheduler.openExactAlarmSettings(this)
                     result.success(null)
                 }
+                else -> result.notImplemented()
+            }
+        }
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            PLATFORM_CHANNEL,
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
                 "requestPinWidget" -> {
                     val manager = AppWidgetManager.getInstance(this)
                     val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
@@ -82,5 +90,6 @@ class MainActivity : FlutterActivity() {
 
     companion object {
         private const val SCHEDULE_CHANNEL = "com.squiraldot.qippet_pets/schedule"
+        private const val PLATFORM_CHANNEL = "com.squiraldot.qippet_pets/platform"
     }
 }
