@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'data/pet_repository.dart';
@@ -63,10 +65,7 @@ class _PetHomePageState extends State<PetHomePage> {
       builder: (context, _) {
         final preferences = widget.controller.preferences;
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Qippet Pets'),
-            centerTitle: false,
-          ),
+          appBar: AppBar(title: const Text('Qippet Pets'), centerTitle: false),
           body: SafeArea(
             child: IndexedStack(
               index: _tab,
@@ -232,17 +231,17 @@ class _PetAnimationPlayerState extends State<PetAnimationPlayer> {
   PetAnimationState _state = PetAnimationState.idle;
   int _frame = 1;
   int _tapCount = 0;
-  late final ValueNotifier<int> _clock;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _clock = ValueNotifier<int>(0);
     _scheduleFrame();
   }
 
   void _scheduleFrame() {
-    Future<void>.delayed(
+    _timer?.cancel();
+    _timer = Timer(
       Duration(milliseconds: 1000 ~/ _state.framesPerSecond),
       () {
         if (!mounted) return;
@@ -267,11 +266,12 @@ class _PetAnimationPlayerState extends State<PetAnimationPlayer> {
           : PetAnimationState.tapHappy;
       _frame = 1;
     });
+    _scheduleFrame();
   }
 
   @override
   void dispose() {
-    _clock.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
