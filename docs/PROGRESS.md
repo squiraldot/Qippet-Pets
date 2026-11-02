@@ -12,7 +12,7 @@
 - [x] Add deterministic Pillow sprite generation and Android drawable synchronization tools.
 - [x] Document the 256px sprite contract, frame naming, frame counts, and playback rates.
 - [x] Verify `flutter analyze`, `flutter test`, and Android pet drawable synchronization in GitHub Actions.
-- [ ] Verify Android release APK build after aligning Java and Kotlin bytecode targets across Flutter Android plugin modules.
+- [ ] Verify Android release APK build after configuring Android library compileOptions and matching Kotlin JVM targets across Flutter Android plugin modules.
 
 ## Current behavior and known scope
 
