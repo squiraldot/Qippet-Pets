@@ -72,6 +72,8 @@ class _PetHomePageState extends State<PetHomePage> {
               children: [
                 PetPickerScreen(
                   selectedPetId: preferences.selectedPetId,
+                  sleepTime: preferences.sleepTime,
+                  wakeTime: preferences.wakeTime,
                   onSelect: widget.controller.selectPet,
                 ),
                 PetSettingsScreen(
@@ -109,10 +111,14 @@ class PetPickerScreen extends StatelessWidget {
   const PetPickerScreen({
     super.key,
     required this.selectedPetId,
+    required this.sleepTime,
+    required this.wakeTime,
     required this.onSelect,
   });
 
   final String selectedPetId;
+  final String sleepTime;
+  final String wakeTime;
   final ValueChanged<String> onSelect;
 
   @override
@@ -133,7 +139,12 @@ class PetPickerScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              PetAnimationPlayer(key: ValueKey(selected.id), pet: selected),
+              PetAnimationPlayer(
+                key: ValueKey(selected.id),
+                pet: selected,
+                sleepTime: sleepTime,
+                wakeTime: wakeTime,
+              ),
               const SizedBox(height: 8),
               Text(selected.name, style: Theme.of(context).textTheme.titleLarge),
               Text(selected.description),
@@ -218,10 +229,14 @@ class PetAnimationPlayer extends StatefulWidget {
     super.key,
     required this.pet,
     this.compact = false,
+    this.sleepTime,
+    this.wakeTime,
   });
 
   final Pet pet;
   final bool compact;
+  final String? sleepTime;
+  final String? wakeTime;
 
   @override
   State<PetAnimationPlayer> createState() => _PetAnimationPlayerState();
@@ -231,11 +246,22 @@ class _PetAnimationPlayerState extends State<PetAnimationPlayer> {
   PetAnimationState _state = PetAnimationState.idle;
   int _frame = 1;
   int _tapCount = 0;
+  bool _scheduledSleep = false;
   Timer? _timer;
+
+  bool get _hasSchedule => widget.sleepTime != null && widget.wakeTime != null;
+
+  bool _isScheduledSleep() => _hasSchedule && PetSchedule.isSleepingAt(
+        DateTime.now(),
+        sleepTime: widget.sleepTime!,
+        wakeTime: widget.wakeTime!,
+      );
 
   @override
   void initState() {
     super.initState();
+    _scheduledSleep = _isScheduledSleep();
+    if (_scheduledSleep) _state = PetAnimationState.sleeping;
     _scheduleFrame();
   }
 
@@ -246,8 +272,21 @@ class _PetAnimationPlayerState extends State<PetAnimationPlayer> {
       () {
         if (!mounted) return;
         setState(() {
-          if (_frame == 5 && !_state.loops) {
-            _state = PetAnimationState.idle;
+          final scheduledSleep = _isScheduledSleep();
+          if (scheduledSleep != _scheduledSleep) {
+            _scheduledSleep = scheduledSleep;
+            _state = scheduledSleep
+                ? PetAnimationState.sleepStart
+                : PetAnimationState.wakeUp;
+            _frame = 1;
+          } else if (_frame == 5 && !_state.loops) {
+            _state = switch (_state) {
+              PetAnimationState.sleepStart => PetAnimationState.sleeping,
+              PetAnimationState.wakeUp => PetAnimationState.idle,
+              _ => _scheduledSleep
+                  ? PetAnimationState.sleeping
+                  : PetAnimationState.idle,
+            };
             _frame = 1;
           } else {
             _frame = _frame == 5 ? 1 : _frame + 1;
