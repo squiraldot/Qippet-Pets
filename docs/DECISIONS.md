@@ -66,3 +66,11 @@
 - **Rescheduling:** Recompute after app launch/resume, Flutter sleep/wake preference changes, boot, system time changes, timezone changes, package replacement, and exact-alarm permission changes.
 - **DST policy:** Resolve local wall-clock times using `LocalDateTime.atZone(zone)`. Nonexistent times during a spring-forward gap move forward by the DST gap; ambiguous fall-back times use java.time's earlier valid offset. The calculator accepts an injected `Clock` for deterministic tests.
 - **Self-healing:** Every widget render continues to derive its frame from `PetStateResolver(LocalTime.now(), ...)`, so a delayed or missed alarm cannot leave the widget displaying a stale sleep state.
+
+## 2026-11-03 — Launcher pinning and device health guidance
+
+- **Widget pinning:** Use Android `AppWidgetManager.requestPinAppWidget` through the existing Flutter platform channel. If the API is unavailable, the launcher declines the request, or the native call fails, return a false result and show an in-app manual widget installation guide.
+- **Exact alarms:** Keep the existing `SCHEDULE_EXACT_ALARM` access model and expose `AlarmManager.canScheduleExactAlarms()` as the permission status independently of whether the selected sleep/wake schedule currently has a pending transition. Open `ACTION_REQUEST_SCHEDULE_EXACT_ALARM` with an app-details fallback.
+- **MIUI/HyperOS:** Try Xiaomi's `miui.intent.action.OP_AUTO_START` activity first. Catch missing/blocked vendor activities and fall back to this app's `ACTION_APPLICATION_DETAILS_SETTINGS` page. Provide user instructions to enable Autostart and choose Battery saver → No restrictions; do not claim to change vendor settings programmatically.
+- **Battery settings:** Open the app's system App info page as a safe cross-version entry point, then explain how to select No restrictions in the vendor battery menu.
+- **CI:** Add a main-branch GitHub Actions workflow that runs Flutter analysis and tests, generates the Gradle wrapper JAR in CI (the binary remains untracked), builds debug and release APKs, and updates the rolling `latest` prerelease with `qippet-pets.apk`.
