@@ -1,5 +1,11 @@
 package com.squiraldot.qippet_pets
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -19,9 +25,22 @@ class MainActivity : FlutterActivity() {
                     PetAlarmScheduler.reschedule(this).wireValue,
                 )
                 "requestExactAlarmPermission" -> {
-                    PetAlarmScheduler.requestExactAlarmPermission(this)
+                    PetAlarmScheduler.openExactAlarmSettings(this)
                     result.success(null)
                 }
+                "requestPinWidget" -> {
+                    val manager = AppWidgetManager.getInstance(this)
+                    val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                        manager.isRequestPinAppWidgetSupported
+                    val accepted = supported && manager.requestPinAppWidget(
+                        ComponentName(this, PetWidgetProvider::class.java),
+                        null,
+                        null,
+                    )
+                    result.success(accepted)
+                }
+                "openMiuiAutostartSettings" -> result.success(openMiuiAutostartSettings())
+                "openBatterySettings" -> result.success(openAppSettings())
                 else -> result.notImplemented()
             }
         }
@@ -31,6 +50,34 @@ class MainActivity : FlutterActivity() {
     override fun onResume() {
         super.onResume()
         PetAlarmScheduler.reschedule(this)
+    }
+
+    private fun openMiuiAutostartSettings(): Boolean {
+        val miuiIntent = Intent("miui.intent.action.OP_AUTO_START").apply {
+            component = ComponentName(
+                "com.miui.securitycenter",
+                "com.miui.permcenter.autostart.AutoStartManagementActivity",
+            )
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        return try {
+            startActivity(miuiIntent)
+            true
+        } catch (_: Exception) {
+            openAppSettings()
+        }
+    }
+
+    private fun openAppSettings(): Boolean = try {
+        startActivity(
+            Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:$packageName"),
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        )
+        true
+    } catch (_: Exception) {
+        false
     }
 
     companion object {
