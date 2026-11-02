@@ -39,7 +39,10 @@ void main() {
     );
     await tester.pump();
 
-    await tester.tap(find.text('Biscuit').last);
+    final biscuitCard = find.text('Biscuit');
+    await tester.ensureVisible(biscuitCard);
+    await tester.pump();
+    await tester.tap(biscuitCard);
     await tester.pump();
 
     expect(storage.values[PetRepository.selectedPetIdKey], 'dog');
