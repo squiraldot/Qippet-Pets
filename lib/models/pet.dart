@@ -52,6 +52,29 @@ class Pet {
       catalog.firstWhere((pet) => pet.id == id, orElse: () => catalog.first);
 }
 
+class PetSchedule {
+  const PetSchedule._();
+
+  static bool isSleepingAt(
+    DateTime now, {
+    required String sleepTime,
+    required String wakeTime,
+  }) {
+    final sleep = _minutes(sleepTime);
+    final wake = _minutes(wakeTime);
+    if (sleep == wake) return false;
+    final current = now.hour * 60 + now.minute;
+    return sleep < wake
+        ? current >= sleep && current < wake
+        : current >= sleep || current < wake;
+  }
+
+  static int _minutes(String value) {
+    final parts = value.split(':');
+    return int.parse(parts[0]) * 60 + int.parse(parts[1]);
+  }
+}
+
 class PetPreferences {
   const PetPreferences({
     required this.selectedPetId,
