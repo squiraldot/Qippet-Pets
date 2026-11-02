@@ -374,9 +374,9 @@ class PetSettingsScreen extends StatelessWidget {
   final ValueChanged<String> onSleepChanged;
   final ValueChanged<String> onWakeChanged;
   final String? alarmStatus;
-  final VoidCallback onRequestExactAlarm;
-  final VoidCallback onOpenAutostart;
-  final VoidCallback onOpenBatterySettings;
+  final Future<void> Function() onRequestExactAlarm;
+  final Future<void> Function() onOpenAutostart;
+  final Future<void> Function() onOpenBatterySettings;
 
   TimeOfDay _parse(String value) {
     final parts = value.split(':');
@@ -441,7 +441,7 @@ class PetSettingsScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         alarmStatus == 'exact'
-                            ? 'Precise schedule is active'
+                            ? 'Exact-alarm access is enabled'
                             : alarmStatus == 'inexact'
                                 ? 'Precise alarm access is unavailable'
                                 : alarmStatus == 'disabled'
@@ -455,9 +455,9 @@ class PetSettingsScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   alarmStatus == 'exact'
-                      ? 'Your pet will transition at the scheduled sleep and wake times.'
+                      ? 'Android allows Qippet Pets to schedule precise sleep and wake transitions.'
                       : alarmStatus == 'inexact'
-                          ? 'Android is using battery-friendly inexact alarms, so transitions may happen later than selected.'
+                          ? 'Allow exact alarms in system settings so sleep and wake transitions can run at the selected times.'
                           : alarmStatus == 'disabled'
                               ? 'Choose different sleep and wake times to enable automatic transitions.'
                               : 'Open this screen again to refresh alarm availability.',
@@ -465,7 +465,7 @@ class PetSettingsScreen extends StatelessWidget {
                 if (alarmStatus != 'disabled') ...[
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
-                    onPressed: onRequestExactAlarm,
+                    onPressed: () => onRequestExactAlarm(),
                     icon: const Icon(Icons.settings),
                     label: Text(alarmStatus == 'exact'
                         ? 'Manage exact-alarm access'
@@ -490,12 +490,12 @@ class PetSettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
-                  onPressed: onOpenAutostart,
+                  onPressed: () => onOpenAutostart(),
                   icon: const Icon(Icons.autorenew),
                   label: const Text('Open Autostart settings'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: onOpenBatterySettings,
+                  onPressed: () => onOpenBatterySettings(),
                   icon: const Icon(Icons.battery_full),
                   label: const Text('Open battery settings'),
                 ),
