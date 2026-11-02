@@ -1,20 +1,33 @@
 # Qippet Pets
 
-Qippet Pets is an Android-only Flutter companion app for choosing a virtual pet and hosting it in a native Android home-screen widget.
+Qippet Pets is an Android-only Flutter virtual pet companion.
 
-## Project status
+## Current app
 
-This repository contains the Flutter application foundation and automated quality-check and APK-release workflows. The interactive pet experience and native widget are planned follow-on milestones; see [docs/PROGRESS.md](docs/PROGRESS.md) and [docs/DECISIONS.md](docs/DECISIONS.md).
+- Choose a cat, dog, or bunny from an animated picker.
+- Tap the selected preview to play happy and spin animations.
+- Set a local-device sleep and wake schedule.
+- Persist the selected pet and schedule with the `home_widget` SharedPreferences integration.
+- Placeholder geometric sprite artwork is generated until final art is ready.
 
-## Requirements
+The **Add to Home screen** button is currently a placeholder. A native Android widget provider and launcher integration are not implemented yet.
 
-- Flutter stable
-- Java 17
-- Android SDK API 24 or newer
-- Application ID: `com.squiraldot.qippet_pets`
-- Minimum Android SDK: 24
+## Sprite assets
+
+See [docs/ASSETS.md](docs/ASSETS.md) for the exact source asset contract.
+
+```bash
+python -m pip install Pillow
+python tool/generate_placeholder_pets.py
+python tool/sync_pet_assets.py
+python tool/sync_pet_assets.py --check
+```
+
+The canonical art lives in `assets/pets/<petId>/<state>_<nn>.png`. Android drawable resources are generated copies; do not edit them manually.
 
 ## Development
+
+Requirements: Flutter stable, Java 17, Android SDK API 24 or newer, Python 3.12+ and Pillow for sprite generation.
 
 ```bash
 flutter pub get
@@ -23,15 +36,4 @@ flutter test
 flutter run
 ```
 
-Only Android is targeted. Two independent GitHub Actions workflows are used:
-
-- **Analyze and test** runs `flutter analyze` and `flutter test` on pushes to `main` and pull requests.
-- **Build and publish Android APK** builds on pushes to `main` (or manual dispatch), uploads the APK as a workflow artifact, and updates the rolling prerelease tagged `latest`.
-
-The APK workflow uses the checked-in Android Gradle configuration: AGP 8.11.1, Kotlin Gradle Plugin 2.2.20, and Gradle 8.14.3. The Gradle wrapper JAR is generated at runtime because it is intentionally not committed; the workflow does not replace project Gradle files with a moving Flutter template.
-
-## Release signing
-
-To sign releases with your own key, configure all four GitHub Actions repository secrets: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, and `KEY_PASSWORD`. If any secret is missing, CI uses the default debug signing configuration so an installable APK is still produced.
-
-Never commit keystores, signing credentials, or other secrets.
+GitHub Actions generates and syncs the placeholder frames, verifies that Android resources match the source sprites, runs analysis and tests, and builds a release APK on pushes to `main`.
