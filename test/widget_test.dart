@@ -16,7 +16,7 @@ class FakePetStorage implements PetStorage {
 }
 
 void main() {
-  testWidgets('picker renders all pets and the add-to-home placeholder', (tester) async {
+  testWidgets('picker renders all pets and the add-to-home action', (tester) async {
     final storage = FakePetStorage();
     await tester.pumpWidget(
       QippetPetsApp(repository: PetRepository(storage)),

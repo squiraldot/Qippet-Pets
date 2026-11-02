@@ -41,3 +41,11 @@
 - **Root cause:** The `home_widget` module's own Gradle script applies its Java 8 defaults after the root project's early task/extension configuration. Earlier configuration actions therefore did not win for the generated release variant.
 - **Decision:** Move the JavaCompile and KotlinCompile target configuration into Gradle's `projectsEvaluated` lifecycle callback. The callback is registered from the root build and configures plugin tasks only after subproject build scripts have completed, so the common JVM 17 policy is applied last. Keep Gradle's compatibility validation enabled.
 - **Validation:** The next release APK workflow must confirm the actual `:home_widget:compileReleaseJavaWithJavac` and `:home_widget:compileReleaseKotlin` pair succeeds.
+
+## 2026-11-03 — Native Android pet home-screen widget
+
+- **Decision:** Implement a classic XML AppWidgetProvider named PetWidgetProvider, using home_widget's HomeWidgetPlugin.getData(context) accessor so Kotlin reads the same SharedPreferences instance and keys written by Flutter.
+- **Widget appearance:** Use one ImageView inside a transparent, rounded FrameLayout. The default footprint is 2 × 2 cells, it can resize horizontally and vertically, and periodic updates are disabled; Flutter explicitly requests immediate updates after pet or schedule changes.
+- **State resolution:** Resolve local wall-clock LocalTime values in a pure Kotlin PetStateResolver. The sleep interval includes its start and excludes its wake boundary; overnight intervals are supported, and equal or malformed times resolve to AWAKE.
+- **Artwork:** Select pre-generated drawable-nodpi resource IDs for each supported pet and state. Widget rendering uses RemoteViews.setImageViewResource, never bitmaps.
+- **Testing:** Add JVM unit tests for overnight and same-day windows, exact boundary minutes, and equal-time schedules. Run them in CI with ./gradlew testDebugUnitTest; CI bootstraps the wrapper JAR because this repository intentionally does not check in the generated binary.

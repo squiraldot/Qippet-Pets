@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:home_widget/home_widget.dart';
 
 import 'data/pet_repository.dart';
 import 'models/pet.dart';
@@ -150,8 +151,8 @@ class PetPickerScreen extends StatelessWidget {
               Text(selected.description),
               const SizedBox(height: 12),
               FilledButton.icon(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Home screen widget setup is coming soon.')),
+                onPressed: () => HomeWidget.requestPinWidget(
+                  androidName: 'PetWidgetProvider',
                 ),
                 icon: const Icon(Icons.add_to_home_screen),
                 label: const Text('Add to Home screen'),
@@ -393,7 +394,7 @@ class PetSettingsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         const Text(
-          'Schedule-based sleep and wake animations will be connected to the home-screen widget in a later step.',
+          'The home-screen pet widget refreshes whenever you change your pet or sleep schedule.',
         ),
       ],
     );
