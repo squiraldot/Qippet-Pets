@@ -6,8 +6,9 @@
 - [x] Set package identity to `com.squiraldot.qippet_pets` and minSdk 24.
 - [x] Add repository working agreements, README, and ignore rules.
 - [x] Add a starter widget test.
-- [x] Add GitHub Actions analysis, test, APK build, artifact, and rolling prerelease workflow.
-- [ ] Verify the first GitHub Actions run and resolve any failures.
+- [x] Split quality checks and APK publishing into independent GitHub Actions workflows.
+- [x] Pin the Android build to the checked-in AGP 8.11.1 / Gradle 8.13 toolchain instead of replacing it with the moving Flutter template.
+- [ ] Verify the new workflow runs and resolve any failures.
 
 ## Product milestones
 

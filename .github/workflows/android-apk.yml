@@ -1,60 +1,31 @@
-name: Qippet Pets CI
+name: Build and publish Android APK
 
 on:
   push:
     branches:
       - main
-  pull_request:
+  workflow_dispatch:
 
 concurrency:
-  group: qippet-pets-${{ github.workflow }}-${{ github.ref }}
+  group: qippet-pets-android-apk-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  test:
-    name: Analyze and test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Analyze
-        run: flutter analyze
-
-      - name: Test
-        run: flutter test
-
   build-apk:
     name: Build and publish Android APK
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -68,22 +39,12 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Generate Flutter-compatible Android Gradle host
+      - name: Generate missing Gradle wrapper JAR
         shell: bash
         run: |
-          mkdir -p "$RUNNER_TEMP/qippet-overrides"
-          cp android/app/build.gradle.kts "$RUNNER_TEMP/qippet-overrides/build.gradle.kts"
-          cp android/app/src/main/AndroidManifest.xml "$RUNNER_TEMP/qippet-overrides/AndroidManifest.xml"
-          cp android/app/src/main/kotlin/com/squiraldot/qippet_pets/MainActivity.kt "$RUNNER_TEMP/qippet-overrides/MainActivity.kt"
-          cp android/app/src/main/res/values/styles.xml "$RUNNER_TEMP/qippet-overrides/styles.xml"
-
-          flutter create --platforms=android --org com.squiraldot --project-name qippet_pets --no-pub "$RUNNER_TEMP/qippet-template"
-          rm -rf android
-          cp -R "$RUNNER_TEMP/qippet-template/android" android
-          cp "$RUNNER_TEMP/qippet-overrides/build.gradle.kts" android/app/build.gradle.kts
-          cp "$RUNNER_TEMP/qippet-overrides/AndroidManifest.xml" android/app/src/main/AndroidManifest.xml
-          cp "$RUNNER_TEMP/qippet-overrides/MainActivity.kt" android/app/src/main/kotlin/com/squiraldot/qippet_pets/MainActivity.kt
-          cp "$RUNNER_TEMP/qippet-overrides/styles.xml" android/app/src/main/res/values/styles.xml
+          flutter create --platforms=android --org com.squiraldot --project-name qippet_pets --no-pub "$RUNNER_TEMP/qippet-wrapper"
+          mkdir -p android/gradle/wrapper
+          cp "$RUNNER_TEMP/qippet-wrapper/android/gradle/wrapper/gradle-wrapper.jar" android/gradle/wrapper/gradle-wrapper.jar
           chmod +x android/gradlew
 
       - name: Configure optional release signing
