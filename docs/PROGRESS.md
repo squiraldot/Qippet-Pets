@@ -18,7 +18,11 @@
 - [x] Read selectedPetId, sleepTime, and wakeTime from home_widget SharedPreferences and render the matching idle/sleeping drawable resource.
 - [x] Add pure Kotlin schedule resolver and overnight, same-day, and boundary unit tests.
 - [x] Refresh the native widget immediately after Flutter pet and schedule changes.
-- [x] Add Kotlin unit tests to the main-branch CI workflow.\n- [x] Add immutable widget tap PendingIntents and a non-exported asynchronous animation receiver.\n- [x] Play data-discovered tap animation frames at 120 ms intervals, ignore overlapping taps, and restore the schedule-derived idle frame.\n- [x] Preserve sleeping state on taps without waking or replacing the sleeping sprite.\n- [x] Add Kotlin tests for animation selection, automatic frame discovery, ordering, and duration limits.
+- [x] Add Kotlin unit tests to the main-branch CI workflow.
+- [x] Add immutable widget tap PendingIntents and a non-exported asynchronous animation receiver.
+- [x] Play data-discovered tap animation frames at 120 ms intervals, ignore overlapping taps, and restore the schedule-derived idle frame.
+- [x] Preserve sleeping state on taps without waking or replacing the sleeping sprite.
+- [x] Add Kotlin tests for animation selection, automatic frame discovery, ordering, and duration limits.
 
 ## Current behavior and known scope
 
@@ -29,3 +33,9 @@
 - The selected pet preview observes the configured local-device sleep window, including overnight schedules, and plays sleep-start/sleeping/wake-up states.
 - The Add to Home screen action requests the native Android pet widget pin flow.
 - Placeholder geometric artwork is not final production art.
+
+- [x] Add exact/inexact Android alarm scheduling for the next sleep or wake transition.
+- [x] Add boot, clock, timezone, package-replacement, and exact-alarm-permission rescheduling.
+- [x] Add native Flutter status reporting and a precise-alarm access shortcut.
+- [x] Add sleep-start and wake-up RemoteViews animation bursts followed by schedule-derived state restoration.
+- [x] Add injectable-clock Kotlin tests for overnight schedules, passed times, identical times, and DST gaps.

@@ -57,3 +57,12 @@
 - **Sleep behavior:** Resolve the same local sleep/wake schedule before playback; a sleeping pet receives no tap animation and remains on its sleeping frame.
 - **Animation data:** Discover tap animation groups from drawable resource names matching pet_<petId>_tap_<animation>_<NN>. Each group is an ordered frame-name list plus a frame delay, so adding a correctly named animation's assets automatically makes it selectable.
 - **Testing:** Cover deterministic selection, resource-name discovery, frame ordering, invalid delays, and the two-second sequence cap with JVM unit tests.
+
+## 2026-11-03 — Automatic sleep/wake alarms
+
+- **Scheduling model:** Keep one pending transition alarm at a time. The pure Kotlin calculator chooses the next state boundary (sleep or wake) from the current local schedule; after a transition, the receiver schedules the following boundary.
+- **Exact alarm access:** Declare `SCHEDULE_EXACT_ALARM` only. On Android 12+, check `AlarmManager.canScheduleExactAlarms()`; use `setExactAndAllowWhileIdle` when allowed and `setAndAllowWhileIdle` otherwise. Report exact, inexact, or disabled status through a Flutter MethodChannel and offer the system access settings shortcut.
+- **Transition playback:** A schedule alarm plays the matching `sleep_start` or `wake_up` drawable sequence, then re-resolves the current wall-clock state and updates every widget. Stale alarms never force a state inconsistent with the configured schedule.
+- **Rescheduling:** Recompute after app launch/resume, Flutter sleep/wake preference changes, boot, system time changes, timezone changes, package replacement, and exact-alarm permission changes.
+- **DST policy:** Resolve local wall-clock times using `LocalDateTime.atZone(zone)`. Nonexistent times during a spring-forward gap move forward by the DST gap; ambiguous fall-back times use java.time's earlier valid offset. The calculator accepts an injected `Clock` for deterministic tests.
+- **Self-healing:** Every widget render continues to derive its frame from `PetStateResolver(LocalTime.now(), ...)`, so a delayed or missed alarm cannot leave the widget displaying a stale sleep state.

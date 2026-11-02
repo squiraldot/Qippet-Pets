@@ -44,17 +44,26 @@ class PetHomePage extends StatefulWidget {
   State<PetHomePage> createState() => _PetHomePageState();
 }
 
-class _PetHomePageState extends State<PetHomePage> {
+class _PetHomePageState extends State<PetHomePage> with WidgetsBindingObserver {
   int _tab = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     widget.controller.load();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      widget.controller.refreshScheduleStatus();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     widget.controller.dispose();
     super.dispose();
   }
@@ -82,6 +91,8 @@ class _PetHomePageState extends State<PetHomePage> {
                   wakeTime: preferences.wakeTime,
                   onSleepChanged: widget.controller.setSleepTime,
                   onWakeChanged: widget.controller.setWakeTime,
+                  alarmStatus: widget.controller.alarmStatus,
+                  onRequestExactAlarm: widget.controller.requestExactAlarmPermission,
                 ),
               ],
             ),
@@ -342,12 +353,16 @@ class PetSettingsScreen extends StatelessWidget {
     required this.wakeTime,
     required this.onSleepChanged,
     required this.onWakeChanged,
+    required this.alarmStatus,
+    required this.onRequestExactAlarm,
   });
 
   final String sleepTime;
   final String wakeTime;
   final ValueChanged<String> onSleepChanged;
   final ValueChanged<String> onWakeChanged;
+  final String? alarmStatus;
+  final VoidCallback onRequestExactAlarm;
 
   TimeOfDay _parse(String value) {
     final parts = value.split(':');
@@ -389,6 +404,59 @@ class PetSettingsScreen extends StatelessWidget {
             trailing: TextButton(
               onPressed: () => _pick(context, wakeTime, onWakeChanged),
               child: Text(wakeTime),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      alarmStatus == 'exact'
+                          ? Icons.alarm_on
+                          : alarmStatus == 'inexact'
+                              ? Icons.alarm
+                              : Icons.info_outline,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        alarmStatus == 'exact'
+                            ? 'Precise schedule is active'
+                            : alarmStatus == 'inexact'
+                                ? 'Precise alarm access is unavailable'
+                                : alarmStatus == 'disabled'
+                                    ? 'Automatic transitions are disabled'
+                                    : 'Schedule status unavailable',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  alarmStatus == 'exact'
+                      ? 'Your pet will transition at the scheduled sleep and wake times.'
+                      : alarmStatus == 'inexact'
+                          ? 'Android is using battery-friendly inexact alarms, so transitions may happen later than selected.'
+                          : alarmStatus == 'disabled'
+                              ? 'Choose different sleep and wake times to enable automatic transitions.'
+                              : 'Open this screen again to refresh alarm availability.',
+                ),
+                if (alarmStatus == 'inexact') ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: onRequestExactAlarm,
+                    icon: const Icon(Icons.settings),
+                    label: const Text('Allow precise alarms'),
+                  ),
+                ],
+              ],
             ),
           ),
         ),
