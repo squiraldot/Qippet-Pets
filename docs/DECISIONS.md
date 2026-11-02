@@ -26,3 +26,11 @@
 - **Decision:** Configure every subproject's `JavaCompile` tasks to use Java 17 source and target compatibility, and configure Kotlin compile tasks with `JvmTarget.JVM_17`. This aligns the actual bytecode targets rather than disabling Gradle's compatibility validation.
 - **Evidence:** Android Developers documents explicit Java `sourceCompatibility` and `targetCompatibility`; Kotlin documents that related Java/Kotlin tasks must have matching targets. The upstream `home_widget` Android build configuration also migrated to Java 17.
 - **References:** https://developer.android.com/build/jdks, https://kotlinlang.org/docs/gradle-configure-project.html, https://github.com/ABausG/home_widget/pull/437
+
+## 2026-11-03 — Android library compileOptions enforcement
+
+- **Failure evidence:** Follow-up GitHub Actions run `41526726368` showed the previous task-level JavaCompile configuration was overridden by Android Gradle Plugin variant configuration: `:home_widget:compileReleaseJavaWithJavac` still targeted JVM 1.8 while Kotlin targeted JVM 17.
+- **Root cause:** Android Gradle Plugin derives variant Java task targets from the Android DSL's `android.compileOptions`; setting generic JavaCompile task properties before AGP configures variants is not authoritative.
+- **Decision:** For every subproject applying `com.android.library`, configure its `LibraryExtension.compileOptions` to Java 17 after the plugin is applied. Keep generic JavaCompile and KotlinCompile task defaults aligned as additional coverage. Do not disable Gradle's JVM target validation.
+- **Validation:** A fresh release build is required; analyze/test passing alone does not verify this Android plugin compilation path.
+- **References:** https://developer.android.com/build/jdks, https://docs.gradle.org/current/userguide/building_java_projects.html, https://kotlinlang.org/docs/gradle-compiler-options.html
