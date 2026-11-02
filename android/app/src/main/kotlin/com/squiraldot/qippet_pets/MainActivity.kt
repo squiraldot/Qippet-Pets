@@ -22,7 +22,7 @@ class MainActivity : FlutterActivity() {
                     PetAlarmScheduler.reschedule(this).wireValue,
                 )
                 "getPetAlarmStatus" -> result.success(
-                    PetAlarmScheduler.reschedule(this).wireValue,
+                    PetAlarmScheduler.exactAlarmPermissionStatus(this).wireValue,
                 )
                 "requestExactAlarmPermission" -> {
                     PetAlarmScheduler.openExactAlarmSettings(this)
