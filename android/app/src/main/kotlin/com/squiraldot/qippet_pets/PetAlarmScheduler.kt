@@ -79,6 +79,12 @@ object PetAlarmScheduler {
         }
     }
 
+    fun exactAlarmPermissionStatus(context: Context): PetAlarmStatus {
+        val allowed = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+            (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).canScheduleExactAlarms()
+        return if (allowed) PetAlarmStatus.EXACT else PetAlarmStatus.INEXACT
+    }
+
     fun openExactAlarmSettings(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
         val request = Intent(
