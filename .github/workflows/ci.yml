@@ -68,15 +68,22 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Bootstrap Gradle wrapper runtime
+      - name: Generate Flutter-compatible Android Gradle host
         shell: bash
         run: |
+          mkdir -p "$RUNNER_TEMP/qippet-overrides"
+          cp android/app/build.gradle.kts "$RUNNER_TEMP/qippet-overrides/build.gradle.kts"
+          cp android/app/src/main/AndroidManifest.xml "$RUNNER_TEMP/qippet-overrides/AndroidManifest.xml"
+          cp android/app/src/main/kotlin/com/squiraldot/qippet_pets/MainActivity.kt "$RUNNER_TEMP/qippet-overrides/MainActivity.kt"
+          cp android/app/src/main/res/values/styles.xml "$RUNNER_TEMP/qippet-overrides/styles.xml"
+
           flutter create --platforms=android --org com.squiraldot --project-name qippet_pets --no-pub "$RUNNER_TEMP/qippet-template"
-          mkdir -p android/gradle/wrapper
-          cp "$RUNNER_TEMP/qippet-template/android/gradle/wrapper/gradle-wrapper.jar" android/gradle/wrapper/
-          cp "$RUNNER_TEMP/qippet-template/android/gradle/wrapper/gradle-wrapper.properties" android/gradle/wrapper/
-          cp "$RUNNER_TEMP/qippet-template/android/gradlew" android/gradlew
-          cp "$RUNNER_TEMP/qippet-template/android/gradlew.bat" android/gradlew.bat
+          rm -rf android
+          cp -R "$RUNNER_TEMP/qippet-template/android" android
+          cp "$RUNNER_TEMP/qippet-overrides/build.gradle.kts" android/app/build.gradle.kts
+          cp "$RUNNER_TEMP/qippet-overrides/AndroidManifest.xml" android/app/src/main/AndroidManifest.xml
+          cp "$RUNNER_TEMP/qippet-overrides/MainActivity.kt" android/app/src/main/kotlin/com/squiraldot/qippet_pets/MainActivity.kt
+          cp "$RUNNER_TEMP/qippet-overrides/styles.xml" android/app/src/main/res/values/styles.xml
           chmod +x android/gradlew
 
       - name: Configure optional release signing
@@ -124,5 +131,4 @@ jobs:
           overwrite_files: true
           fail_on_unmatched_files: true
           files: build/app/outputs/flutter-apk/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
