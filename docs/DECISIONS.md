@@ -34,3 +34,10 @@
 - **Decision:** For every subproject applying `com.android.library`, configure its `LibraryExtension.compileOptions` to Java 17 after the plugin is applied. Keep generic JavaCompile and KotlinCompile task defaults aligned as additional coverage. Do not disable Gradle's JVM target validation.
 - **Validation:** A fresh release build is required; analyze/test passing alone does not verify this Android plugin compilation path.
 - **References:** https://developer.android.com/build/jdks, https://docs.gradle.org/current/userguide/building_java_projects.html, https://kotlinlang.org/docs/gradle-compiler-options.html
+
+## 2026-11-03 — Apply JVM targets after Android plugin evaluation
+
+- **Failure evidence:** Run `41527777543` still failed at `:home_widget:compileReleaseKotlin` with Java `compileReleaseJavaWithJavac` at JVM 1.8 and Kotlin at JVM 17, despite configuring the Android library DSL from the root project.
+- **Root cause:** The `home_widget` module's own Gradle script applies its Java 8 defaults after the root project's early task/extension configuration. Earlier configuration actions therefore did not win for the generated release variant.
+- **Decision:** Move the JavaCompile and KotlinCompile target configuration into Gradle's `projectsEvaluated` lifecycle callback. The callback is registered from the root build and configures plugin tasks only after subproject build scripts have completed, so the common JVM 17 policy is applied last. Keep Gradle's compatibility validation enabled.
+- **Validation:** The next release APK workflow must confirm the actual `:home_widget:compileReleaseJavaWithJavac` and `:home_widget:compileReleaseKotlin` pair succeeds.
