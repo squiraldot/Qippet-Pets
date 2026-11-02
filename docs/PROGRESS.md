@@ -48,5 +48,5 @@
 - [x] Add battery settings guidance for selecting **No restrictions**.
 - [x] Add widget fallback and device health widget tests.
 - [x] Add main-branch CI for `flutter analyze`, `flutter test`, debug APK and release APK builds.
-- [x] Publish the release APK to the rolling GitHub `latest` Release and document setup, sprite assets, and APK download steps.
-- [ ] Verify CI completes successfully on the pushed main commit; fix any failing jobs before handoff.
+- [x] Configure CI to publish the release APK to the rolling GitHub `latest` Release and document setup, sprite assets, and APK download steps.
+- [ ] Verify CI completes successfully on the pushed main commit; fix any failing jobs before handoff. The repository connector currently exposes commit statuses but not Actions check-run details, so a green run is not yet independently verifiable here.
