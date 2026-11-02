@@ -40,7 +40,11 @@ void main() {
     await tester.pump();
 
     final biscuitCard = find.text('Biscuit');
-    await tester.scrollUntilVisible(biscuitCard, 220);
+    await tester.scrollUntilVisible(
+      biscuitCard,
+      220,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(biscuitCard);
     await tester.pump();
 
