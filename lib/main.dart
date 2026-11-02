@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:home_widget/home_widget.dart';
 
 import 'data/pet_repository.dart';
 import 'models/pet.dart';
