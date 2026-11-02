@@ -7,8 +7,8 @@
 - [x] Add repository working agreements, README, and ignore rules.
 - [x] Add a starter widget test.
 - [x] Split quality checks and APK publishing into independent GitHub Actions workflows.
-- [x] Pin the Android build to the checked-in AGP 8.11.1 / Gradle 8.13 toolchain instead of replacing it with the moving Flutter template.
-- [ ] Verify the new workflow runs and resolve any failures.
+- [x] Pin Android tooling to AGP 8.11.1, Kotlin Gradle Plugin 2.2.20, and Gradle 8.14.3 to satisfy Flutter 3.47.9's minimum Gradle requirement.
+- [ ] Verify the next APK workflow run and resolve any further failures.
 
 ## Product milestones
 
