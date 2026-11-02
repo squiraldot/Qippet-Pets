@@ -129,7 +129,7 @@ class PetPickerScreen extends StatelessWidget {
       children: [
         Text('Your tiny companion', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 6),
-        Text('Pick a friend. They will keep you company at home.'),
+        const Text('Pick a friend. They will keep you company at home.'),
         const SizedBox(height: 18),
         Container(
           padding: const EdgeInsets.all(18),
