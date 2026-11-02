@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("org.jetbrains.kotlin.android") version "2.2.20" apply false
 }
@@ -15,8 +18,10 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget("17")
+        }
     }
 }
 subprojects {

@@ -12,7 +12,8 @@
 - [x] Add deterministic Pillow sprite generation and Android drawable synchronization tools.
 - [x] Document the 256px sprite contract, frame naming, frame counts, and playback rates.
 - [ ] Run CI and verify generated sprite PNGs are committed on `main`.
-- [ ] Verify `flutter analyze`, `flutter test`, and Android release APK build in GitHub Actions.
+- [x] Verify `flutter analyze`, `flutter test`, and Android pet drawable synchronization in GitHub Actions.
+- [ ] Verify Android release APK build after migrating Kotlin 2.2 compiler configuration to the typed `compilerOptions` DSL.
 
 ## Current behavior and known scope
 

@@ -18,3 +18,10 @@
 - **Schedule semantics:** Interpret schedule values in the device's local time zone. A sleep interval crossing midnight is supported; identical sleep and wake times mean the pet stays awake.
 - **Widget scope:** The app button remains a clear placeholder until a native Android widget provider and launcher flow are implemented.
 - **CI asset generation:** Pillow-generated source sprites and synchronized Android copies are committed by the main-branch CI job when generated files change. Pull-request runs generate and verify them without writing to the branch.
+
+
+## 2026-11-03 — Kotlin Gradle compiler options migration
+
+- **Failure evidence:** The Android release workflow failed while compiling `android/build.gradle.kts` because Kotlin Gradle Plugin 2.2.20 treats the legacy `kotlinOptions` DSL as an error.
+- **Decision:** Use the typed `compilerOptions` DSL with `JvmTarget.fromTarget("17")` for the Android app and all Kotlin subproject compile tasks. Keep Java source/target compatibility at 17 to avoid JVM bytecode target mismatches.
+- **References:** Kotlin Gradle compiler options migration guide and Kotlin 2.2 compatibility guide.
