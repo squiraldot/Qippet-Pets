@@ -47,7 +47,7 @@ void main() {
     await tester.pump();
 
     expect(storage.values[PetRepository.selectedPetIdKey], 'dog');
-    expect(find.text('Your loyal happy pup'), findsNWidgets(2));
+    expect(find.text('Your loyal happy pup'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
   });
