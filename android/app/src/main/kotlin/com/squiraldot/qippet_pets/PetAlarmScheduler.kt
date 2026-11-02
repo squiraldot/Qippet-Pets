@@ -79,13 +79,20 @@ object PetAlarmScheduler {
         }
     }
 
-    fun requestExactAlarmPermission(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val request = Intent(
-                Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+    fun openExactAlarmSettings(context: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        val request = Intent(
+            Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+            Uri.parse("package:${context.packageName}"),
+        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        try {
+            context.startActivity(request)
+        } catch (_: Exception) {
+            val fallback = Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 Uri.parse("package:${context.packageName}"),
             ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(request)
+            runCatching { context.startActivity(fallback) }
         }
     }
 }
