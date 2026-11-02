@@ -28,7 +28,7 @@ Only Android is targeted. Two independent GitHub Actions workflows are used:
 - **Analyze and test** runs `flutter analyze` and `flutter test` on pushes to `main` and pull requests.
 - **Build and publish Android APK** builds on pushes to `main` (or manual dispatch), uploads the APK as a workflow artifact, and updates the rolling prerelease tagged `latest`.
 
-The APK workflow uses the checked-in Android Gradle configuration (AGP 8.11.1 + Gradle 8.13). It generates only the missing Gradle wrapper JAR at runtime; it does not replace project Gradle files with whatever versions happen to ship in the latest Flutter template.
+The APK workflow uses the checked-in Android Gradle configuration: AGP 8.11.1, Kotlin Gradle Plugin 2.2.20, and Gradle 8.14.3. The Gradle wrapper JAR is generated at runtime because it is intentionally not committed; the workflow does not replace project Gradle files with a moving Flutter template.
 
 ## Release signing
 
