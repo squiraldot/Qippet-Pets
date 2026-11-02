@@ -39,3 +39,14 @@
 - [x] Add native Flutter status reporting and a precise-alarm access shortcut.
 - [x] Add sleep-start and wake-up RemoteViews animation bursts followed by schedule-derived state restoration.
 - [x] Add injectable-clock Kotlin tests for overnight schedules, passed times, identical times, and DST gaps.
+
+## Launcher setup, device health, and build verification
+
+- [x] Replace the Flutter plugin pin shortcut with native `AppWidgetManager.requestPinAppWidget` and an in-app manual-add guide when pinning is unsupported or declined.
+- [x] Report exact-alarm permission independently from schedule availability and provide a settings shortcut with an App info fallback.
+- [x] Add Xiaomi/Redmi/POCO MIUI and HyperOS Autostart guidance; try the MIUI autostart intent and fall back safely to this app's system settings page.
+- [x] Add battery settings guidance for selecting **No restrictions**.
+- [x] Add widget fallback and device health widget tests.
+- [x] Add main-branch CI for `flutter analyze`, `flutter test`, debug APK and release APK builds.
+- [x] Publish the release APK to the rolling GitHub `latest` Release and document setup, sprite assets, and APK download steps.
+- [ ] Verify CI completes successfully on the pushed main commit; fix any failing jobs before handoff.
