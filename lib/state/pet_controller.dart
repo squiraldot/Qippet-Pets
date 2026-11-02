@@ -96,7 +96,8 @@ class PetController extends ChangeNotifier {
 
   Future<void> _syncSchedule() async {
     try {
-      alarmStatus = await _scheduleChannel.invokeMethod<String>('schedulePetAlarms');
+      await _scheduleChannel.invokeMethod<String>('schedulePetAlarms');
+      alarmStatus = await _scheduleChannel.invokeMethod<String>('getPetAlarmStatus');
     } on MissingPluginException {
       alarmStatus = null;
     } on PlatformException {
