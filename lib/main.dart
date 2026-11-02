@@ -85,6 +85,7 @@ class _PetHomePageState extends State<PetHomePage> with WidgetsBindingObserver {
                   sleepTime: preferences.sleepTime,
                   wakeTime: preferences.wakeTime,
                   onSelect: widget.controller.selectPet,
+                  onAddWidget: widget.controller.requestPinWidget,
                 ),
                 PetSettingsScreen(
                   sleepTime: preferences.sleepTime,
@@ -93,6 +94,8 @@ class _PetHomePageState extends State<PetHomePage> with WidgetsBindingObserver {
                   onWakeChanged: widget.controller.setWakeTime,
                   alarmStatus: widget.controller.alarmStatus,
                   onRequestExactAlarm: widget.controller.requestExactAlarmPermission,
+                  onOpenAutostart: widget.controller.openMiuiAutostartSettings,
+                  onOpenBatterySettings: widget.controller.openBatterySettings,
                 ),
               ],
             ),
@@ -126,12 +129,22 @@ class PetPickerScreen extends StatelessWidget {
     required this.sleepTime,
     required this.wakeTime,
     required this.onSelect,
+    required this.onAddWidget,
   });
 
   final String selectedPetId;
   final String sleepTime;
   final String wakeTime;
   final ValueChanged<String> onSelect;
+  final Future<bool> Function() onAddWidget;
+
+  Future<void> _addWidget(BuildContext context) async {
+    final pinned = await onAddWidget();
+    if (!context.mounted || pinned) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const ManualWidgetHelpScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,9 +175,7 @@ class PetPickerScreen extends StatelessWidget {
               Text(selected.description),
               const SizedBox(height: 12),
               FilledButton.icon(
-                onPressed: () => HomeWidget.requestPinWidget(
-                  androidName: 'PetWidgetProvider',
-                ),
+                onPressed: () => _addWidget(context),
                 icon: const Icon(Icons.add_to_home_screen),
                 label: const Text('Add to Home screen'),
               ),
@@ -355,6 +366,8 @@ class PetSettingsScreen extends StatelessWidget {
     required this.onWakeChanged,
     required this.alarmStatus,
     required this.onRequestExactAlarm,
+    required this.onOpenAutostart,
+    required this.onOpenBatterySettings,
   });
 
   final String sleepTime;
@@ -363,6 +376,8 @@ class PetSettingsScreen extends StatelessWidget {
   final ValueChanged<String> onWakeChanged;
   final String? alarmStatus;
   final VoidCallback onRequestExactAlarm;
+  final VoidCallback onOpenAutostart;
+  final VoidCallback onOpenBatterySettings;
 
   TimeOfDay _parse(String value) {
     final parts = value.split(':');
@@ -381,7 +396,7 @@ class PetSettingsScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        Text('Daily routine', style: Theme.of(context).textTheme.headlineSmall),
+        Text('Device health & routine', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 8),
         const Text('Choose when your pet should wind down and wake up.'),
         const SizedBox(height: 20),
@@ -448,14 +463,48 @@ class PetSettingsScreen extends StatelessWidget {
                               ? 'Choose different sleep and wake times to enable automatic transitions.'
                               : 'Open this screen again to refresh alarm availability.',
                 ),
-                if (alarmStatus == 'inexact') ...[
+                if (alarmStatus != 'disabled') ...[
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
                     onPressed: onRequestExactAlarm,
                     icon: const Icon(Icons.settings),
-                    label: const Text('Allow precise alarms'),
+                    label: Text(alarmStatus == 'exact'
+                        ? 'Manage exact-alarm access'
+                        : 'Allow exact alarms'),
                   ),
                 ],
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Keep Qippet Pets running', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                const Text(
+                  'On Xiaomi, Redmi and POCO devices running MIUI or HyperOS, enable Autostart for Qippet Pets and set Battery saver to No restrictions. Menu names can vary by system version.',
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: onOpenAutostart,
+                  icon: const Icon(Icons.autorenew),
+                  label: const Text('Open Autostart settings'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: onOpenBatterySettings,
+                  icon: const Icon(Icons.battery_full),
+                  label: const Text('Open battery settings'),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'If the device opens App info, choose Autostart and enable it. Then open Battery saver and select No restrictions.',
+                  style: TextStyle(fontSize: 12),
+                ),
               ],
             ),
           ),
@@ -465,6 +514,35 @@ class PetSettingsScreen extends StatelessWidget {
           'The home-screen pet widget refreshes whenever you change your pet or sleep schedule.',
         ),
       ],
+    );
+  }
+}
+
+
+class ManualWidgetHelpScreen extends StatelessWidget {
+  const ManualWidgetHelpScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Add your pet widget')),
+      body: ListView(
+        padding: const EdgeInsets.all(24),
+        children: const [
+          Icon(Icons.widgets_outlined, size: 64),
+          SizedBox(height: 20),
+          Text('Add Qippet Pets manually', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          SizedBox(height: 12),
+          Text('Your launcher does not support the one-tap widget pin request. You can still add the widget from the home screen:'),
+          SizedBox(height: 16),
+          ListTile(leading: CircleAvatar(child: Text('1')), title: Text('Touch and hold an empty area on your home screen.')),
+          ListTile(leading: CircleAvatar(child: Text('2')), title: Text('Choose Widgets (or Add widgets).')),
+          ListTile(leading: CircleAvatar(child: Text('3')), title: Text('Find Qippet Pets in the widget list.')),
+          ListTile(leading: CircleAvatar(child: Text('4')), title: Text('Touch and hold the pet widget, then drag it onto your home screen.')),
+          SizedBox(height: 12),
+          Text('If Qippet Pets is not listed, reopen the app once and check the Widgets list again.'),
+        ],
+      ),
     );
   }
 }
