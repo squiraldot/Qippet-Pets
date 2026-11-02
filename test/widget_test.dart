@@ -96,6 +96,29 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets('exact-alarm status reflects Android permission state', (tester) async {
+    const channel = MethodChannel('com.squiraldot.qippet_pets/schedule');
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      channel,
+      (call) async => 'exact',
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, null),
+    );
+
+    await tester.pumpWidget(
+      QippetPetsApp(repository: PetRepository(FakePetStorage())),
+    );
+    await tester.pump();
+    await tester.tap(find.text('Settings'));
+    await tester.pump();
+
+    expect(find.text('Exact-alarm access is enabled'), findsOneWidget);
+    expect(find.text('Manage exact-alarm access'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('device health screen explains Xiaomi battery and autostart setup', (tester) async {
     await tester.pumpWidget(
       QippetPetsApp(repository: PetRepository(FakePetStorage())),
