@@ -33,19 +33,17 @@ void main() {
   });
 
   testWidgets('selecting a pet persists its id and updates the preview', (tester) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final storage = FakePetStorage();
     await tester.pumpWidget(
       QippetPetsApp(repository: PetRepository(storage)),
     );
     await tester.pump();
 
-    final biscuitCard = find.text('Biscuit');
-    await tester.scrollUntilVisible(
-      biscuitCard,
-      220,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(biscuitCard);
+    await tester.tap(find.text('Biscuit'));
     await tester.pump();
 
     expect(storage.values[PetRepository.selectedPetIdKey], 'dog');
