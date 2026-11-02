@@ -1,3 +1,4 @@
+import com.android.build.gradle.LibraryExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -20,9 +21,19 @@ subprojects {
     val newSubprojectBuildDir = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 
-    // Android plugins (including Flutter federated plugins) may default Java
-    // compilation to 1.8 even when the app's Kotlin compilation targets 17.
-    // Align every plugin module's Java bytecode with the Kotlin target.
+    // Configure Android library modules through the Android DSL itself.
+    // Setting JavaCompile tasks alone is insufficient: AGP derives each
+    // variant's Java target from android.compileOptions and can overwrite it.
+    plugins.withId("com.android.library") {
+        extensions.configure<LibraryExtension>("android") {
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+            }
+        }
+    }
+
+    // Keep non-Android JavaCompile tasks aligned as well.
     tasks.withType<JavaCompile>().configureEach {
         sourceCompatibility = JavaVersion.VERSION_17.toString()
         targetCompatibility = JavaVersion.VERSION_17.toString()
